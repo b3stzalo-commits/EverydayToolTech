@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="EverydayToolTech provides free online calculators, converters and everyday tools.">
+<title>EverydayToolTech | Free Online Tools</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101214;color:#eee;font-family:Arial,sans-serif}
+header{padding:22px 7%;border-bottom:1px solid #303438;background:#171a1d}
+.logo{font-size:23px;font-weight:bold;letter-spacing:.5px}
+.logo span{color:#999}
+.hero{text-align:center;padding:65px 20px 35px}
+.hero h1{font-size:clamp(32px,5vw,52px);margin:0 0 15px}
+.hero p{color:#aaa;font-size:17px}
+.search{width:min(520px,90%);padding:15px;margin-top:20px;border-radius:10px;border:1px solid #444;background:#202428;color:white;font-size:16px}
+main{max-width:1100px;margin:auto;padding:20px}
+h2{font-size:23px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:#1b1f22;border:1px solid #343a3f;border-radius:13px;padding:22px;cursor:pointer;color:white;text-align:left;transition:.2s}
+.card:hover{background:#292e32;transform:translateY(-3px);border-color:#777}
+.card .symbol{font-size:25px;color:#bbb}
+.card h3{margin:13px 0 7px}
+.card p{color:#aaa;font-size:14px;line-height:1.5}
+.panel{display:none;background:#1b1f22;border:1px solid #41474c;border-radius:14px;padding:25px;margin:30px 0}
+.panel.show{display:block}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+button{cursor:pointer}
+.back{background:#30363a;color:white;border:1px solid #555;padding:9px 13px;border-radius:8px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin:20px 0}
+label{display:block;color:#bbb;font-size:14px;margin-bottom:7px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #454b50;background:#101315;color:white;border-radius:8px;font-size:15px}
+textarea{min-height:130px}
+.calculate{background:#d1d5d8;color:#111;border:0;border-radius:8px;padding:12px 22px;font-weight:bold}
+.result{margin-top:20px;padding:20px;background:#292e32;border:1px solid #484f55;border-radius:10px}
+.result strong{font-size:25px;display:block;margin-bottom:8px;overflow-wrap:anywhere}
+.result p{color:#bbb;margin-bottom:0}
+footer{margin-top:50px;padding:30px;text-align:center;color:#888;border-top:1px solid #333}
+@media(max-width:500px){.hero{padding-top:45px}.panel{padding:17px}}
+</style>
+</head>
+<body>
+<header><div class="logo">Everyday<span>ToolTech</span></div></header>
+
+<section class="hero">
+<h1>Everyday tools. Made simple.</h1>
+<p>Free online calculators and useful tools, all in one place.</p>
+<input class="search" id="search" placeholder="Search for a tool..." oninput="filterTools()">
+</section>
+
+<main>
+<h2>Explore our tools</h2>
+<div class="grid" id="grid">
+<button class="card" data-name="percentage" onclick="openTool('percentage')"><div class="symbol">％</div><h3>Percentage Calculator</h3><p>Calculate percentages and percentage changes.</p></button>
+<button class="card" data-name="discount sale price" onclick="openTool('discount')"><div class="symbol">%</div><h3>Discount Calculator</h3><p>Calculate sale prices and savings.</p></button>
+<button class="card" data-name="gpa grades school" onclick="openTool('gpa')"><div class="symbol">A+</div><h3>GPA Calculator</h3><p>Calculate your estimated grade point average.</p></button>
+<button class="card" data-name="word counter text characters" onclick="openTool('word')"><div class="symbol">Aa</div><h3>Word Counter</h3><p>Count words, characters and sentences.</p></button>
+<button class="card" data-name="age birthday" onclick="openTool('age')"><div class="symbol">◷</div><h3>Age Calculator</h3><p>Calculate your age from your birth date.</p></button>
+<button class="card" data-name="hours work time" onclick="openTool('hours')"><div class="symbol">◴</div><h3>Hours Calculator</h3><p>Calculate hours between two times.</p></button>
+<button class="card" data-name="unit converter length weight temperature" onclick="openTool('unit')"><div class="symbol">⇄</div><h3>Unit Converter</h3><p>Convert length, weight and temperature.</p></button>
+<button class="card" data-name="tip restaurant bill" onclick="openTool('tip')"><div class="symbol">$</div><h3>Tip Calculator</h3><p>Calculate tips and split bills.</p></button>
+<button class="card" data-name="random number generator" onclick="openTool('random')"><div class="symbol">⚄</div><h3>Random Number Generator</h3><p>Generate random numbers within a range.</p></button>
+<button class="card" data-name="date days calculator" onclick="openTool('date')"><div class="symbol">▦</div><h3>Date Calculator</h3><p>Calculate days between dates or add days.</p></button>
+</div>
+
+<section class="panel" id="panel">
+<div class="panel-head">
+<h2 id="toolTitle">Tool</h2>
+<button class="back" onclick="closeTool()">← All tools</button>
+</div>
+<div id="formArea"></div>
+<div class="result" id="result">
+<strong>Your result will appear here</strong>
+<p>Enter your information and calculate.</p>
+</div>
+</section>
+</main>
+
+<footer>
+<p>© <span id="year"></span> EverydayToolTech</p>
+<p>Free online tools for everyday tasks.</p>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let current="";
+
+function filterTools(){
+ const q=$("search").value.toLowerCase();
+ document.querySelectorAll(".card").forEach(c=>{
+ c.style.display=(c.innerText+" "+c.dataset.name).toLowerCase().includes(q)?"":"none";
+ });
+}
+
+function field(id,label,type="number",value=""){
+ return `<div><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${value}"></div>`;
+}
+function selectField(id,label,options){
+ return `<div><label for="${id}">${label}</label><select id="${id}">${options.map(x=>`<option>${x}</option>`).join("")}</select></div>`;
+}
+function showForm(title,html){
+ $("toolTitle").textContent=title;
+ $("formArea").innerHTML=`<div class="fields">${html}</div><button class="calculate" onclick="calculate()">Calculate</button>`;
+ $("result").innerHTML="<strong>Your result will appear here</strong><p>Enter your information and calculate.</p>";
+}
+function openTool(name){
+ current=name;
+ $("panel").classList.add("show");
+ const forms={
+ percentage:["Percentage Calculator",field("a","First number")+field("b","Second number")+selectField("mode","Calculation",["What is A% of B?","A is what percent of B?","Percentage change from A to B"])],
+ discount:["Discount Calculator",field("price","Original price ($)")+field("discount","Discount percentage (%)")],
+ gpa:["GPA Calculator",`<div><label>Grades (comma-separated)</label><input id="grades" placeholder="A, B, A-, C"></div><div><label>Credits (comma-separated)</label><input id="credits" placeholder="3, 3, 4, 3"></div>`],
+ word:["Word Counter",`<div style="grid-column:1/-1"><label>Your text</label><textarea id="words" placeholder="Paste or type your text here..."></textarea></div>`],
+ age:["Age Calculator",field("birth","Date of birth","date")+field("asof","Calculate age on","date",new Date().toISOString().slice(0,10))],
+ hours:["Hours Calculator",field("start","Start time","time")+field("end","End time","time")+field("break","Unpaid break (minutes)","number","0")],
+ unit:["Unit Converter",field("value","Value")+selectField("from","Convert from",["Meters","Kilometers","Centimeters","Miles","Feet","Inches","Kilograms","Grams","Pounds","Ounces","Celsius","Fahrenheit"])+selectField("to","Convert to",["Meters","Kilometers","Centimeters","Miles","Feet","Inches","Kilograms","Grams","Pounds","Ounces","Celsius","Fahrenheit"])],
+ tip:["Tip Calculator",field("bill","Bill total ($)")+field("tip","Tip percentage (%)","number","20")+field("people","Number of people","number","1")],
+ random:["Random Number Generator",field("min","Minimum","number","1")+field("max","Maximum","number","100")+field("count","How many numbers?","number","1")],
+ date:["Date Calculator",selectField("mode","Calculation",["Days between two dates","Add days to a date","Subtract days from a date"])+field("date1","Starting date","date",new Date().toISOString().slice(0,10))+`<div><label id="date2label">End date</label><input id="date2" type="date"></div>`]
+ };
+ showForm(...forms[name]);
+ if(name==="date"){
+ $("mode").onchange=()=>{
+ const add=$("mode").value!=="Days between two dates";
+ $("date2").type=add?"number":"date";
+ $("date2label").textContent=add?"Number of days":"End date";
+ };
+ }
+ $("panel").scrollIntoView({behavior:"smooth"});
+}
+function closeTool(){
+ $("panel").classList.remove("show");
+ current="";
+}
+function num(id){const n=Number($(id).value);if(!Number.isFinite(n))throw Error("Please enter valid numbers.");return n}
+function money(n){return n.toLocaleString(undefined,{style:"currency",currency:"USD"})}
+function fmt(n){return Number(n.toFixed(5)).toLocaleString()}
+function dateVal(id){const s=$(id).value;if(!s)throw Error("Please select a date.");const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function output(main,detail){$("result").innerHTML=`<strong>${main}</strong><p>${detail}</p>`}
+function calculate(){
+ try{
+ let a,b,r;
+ switch(current){
+ case "percentage":
+ a=num("a");b=num("b");
+ if($("mode").value==="What is A% of B?")output(fmt(a*b/100),`${a}% of ${b} is ${fmt(a*b/100)}.`);
+ else if($("mode").value==="A is what percent of B?"){if(!b)throw Error("Second number cannot be zero.");output(fmt(a/b*100)+"%",`${a} is this percentage of ${b}.`)}
+ else{if(!a)throw Error("First number cannot be zero.");r=(b-a)/Math.abs(a)*100;output(fmt(r)+"%",r>=0?"Percentage increase.":"Percentage decrease.");}
+ break;
+ case "discount":
+ a=num("price");b=num("discount");if(a<0||b<0||b>100)throw Error("Enter a nonnegative price and discount from 0 to 100.");output(money(a*(1-b/100)),`You save ${money(a*b/100)}.`);break;
+ case "gpa":{
+ let gs=$("grades").value.split(",").map(x=>x.trim().toUpperCase()).filter(Boolean);
+ let cs=$("credits").value.split(",").map(Number);
+ let points={"A":4,"A-":3.7,"B+":3.3,"B":3,"B-":2.7,"C+":2.3,"C":2,"C-":1.7,"D+":1.3,"D":1,"D-":.7,"F":0};
+ if(!gs.length||gs.length!==cs.length||cs.some(x=>!Number.isFinite(x)||x<=0))throw Error("Enter matching grades and positive credits.");
+ let total=0,credits=0;
+ gs.forEach((g,i)=>{if(!(g in points))throw Error("Use standard letter grades such as A, B+, C or F.");total+=points[g]*cs[i];credits+=cs[i]});
+ output((total/credits).toFixed(2)+" / 4.00",`Based on ${gs.length} courses and ${credits} credits. Basic unweighted estimate.`);break;
+ }
+ case "word":{
+ let s=$("words").value,words=s.trim()?s.trim().split(/\s+/).length:0;
+ output(words+" words",`${s.length} characters · ${s.replace(/\s/g,"").length} without spaces · ${(s.match(/[.!?]+(?=\s|$)/g)||[]).length} sentences · ${s.trim()?s.trim().split(/\n\s*\n/).length:0} paragraphs.`);break;
+ }
+ case "age":{
+ let birth=dateVal("birth"),asof=dateVal("asof");if(birth>asof)throw Error("Birth date must be before the comparison date.");
+ let y=asof.getFullYear()-birth.getFullYear(),m=asof.getMonth()-birth.getMonth(),d=asof.getDate()-birth.getDate();
+ if(d<0){m--;d+=new Date(asof.getFullYear(),asof.getMonth(),0).getDate()}
+ if(m<0){y--;m+=12}
+ output(`${y} years, ${m} months`,`${d} additional days.`);break;
+ }
+ case "hours":{
+ let s=$("start").value,e=$("end").value;if(!s||!e)throw Error("Choose both times.");
+ let [sh,sm]=s.split(":").map(Number),[eh,em]=e.split(":").map(Number);
+ let mins=eh*60+em-(sh*60+sm);if(mins<0)mins+=1440;
+ let br=num("break");if(br<0||br>=mins)throw Error("Break must be shorter than elapsed time.");
+ mins-=br;output(`${Math.floor(mins/60)}h ${mins%60}m`,`${(mins/60).toFixed(2)} decimal hours.`);break;
+ }
+ case "unit":{
+ a=num("value");let f=$("from").value,t=$("to").value;
+ const group={Meters:"length",Kilometers:"length",Centimeters:"length",Miles:"length",Feet:"length",Inches:"length",Kilograms:"weight",Grams:"weight",Pounds:"weight",Ounces:"weight",Celsius:"temp",Fahrenheit:"temp"};
+ if(group[f]!==group[t])throw Error("Choose units from the same category.");
+ let factor={Meters:1,Kilometers:1000,Centimeters:.01,Miles:1609.344,Feet:.3048,Inches:.0254,Kilograms:1,Grams:.001,Pounds:.45359237,Ounces:.028349523125};
+ if(group[f]==="temp")r=f===t?a:f==="Celsius"?a*9/5+32:(a-32)*5/9;
+ else r=a*factor[f]/factor[t];
+ output(fmt(r)+" "+t,`${fmt(a)} ${f} converted to ${t}.`);break;
+ }
+ case "tip":{
+ a=num("bill");b=num("tip");let p=num("people");
+ if(a<0||b<0||!Number.isInteger(p)||p<1)throw Error("Enter a valid bill, tip and whole number of people.");
+ let t=a*b/100;output(money((a+t)/p)+" each",`Tip: ${money(t)} · Total: ${money(a+t)}.`);break;
+ }
+ case "random":{
+ a=num("min");b=num("max");let c=num("count");
+ if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b)||a>b||!Number.isInteger(c)||c<1||c>100)throw Error("Use whole-number limits and choose 1–100 results.");
+ let arr=Array.from({length:c},()=>Math.floor(Math.random()*(b-a+1))+a);
+ output(arr.join(", "),`${c} random number(s) between ${a} and ${b}.`);break;
+ }
+ case "date":{
+ let d=dateVal("date1"),mode=$("mode").value,second=$("date2").value;
+ if(mode==="Days between two dates"){if(!second)throw Error("Choose an end date.");let end=dateVal("date2");let days=Math.round(Math.abs(end-d)/86400000);output(days.toLocaleString()+" days","Between the selected dates.");}
+ else{let n=Number(second);if(!Number.isInteger(n)||n<0||n>1000000)throw Error("Enter a whole number of days from 0 to 1,000,000.");d.setDate(d.getDate()+(mode==="Add days to a date"?n:-n));output(d.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}),mode+" · "+n+" days.");}
+ break;
+ }
+ }
+ }catch(e){output("Check your entries",e.message)}
+}
+$("year").textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
